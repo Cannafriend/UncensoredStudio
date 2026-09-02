@@ -15,22 +15,12 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [2/4] Packing Distribution Payload Archive...
-python -c "
-import zipfile, os
-payload_zip = r'%~dp0installer\payload.zip'
-os.makedirs(os.path.dirname(payload_zip), exist_ok=True)
-files = [(r'%~dp0UncensoredStudio.exe', 'UncensoredStudio.exe'), (r'%~dp0backend\koboldcpp.exe', r'backend\koboldcpp.exe'), (r'%~dp0Logo.png', 'Logo.png'), (r'%~dp0LaunchStudio.bat', 'LaunchStudio.bat'), (r'%~dp0README.md', 'README.md')]
-with zipfile.ZipFile(payload_zip, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
-    for src, dst in files:
-        if os.path.exists(src): zf.write(src, dst)
-    assets_dir = r'%~dp0Assets'
-    if os.path.exists(assets_dir):
-        for root, dirs, f_list in os.walk(assets_dir):
-            for f in f_list:
-                full_p = os.path.join(root, f)
-                rel_p = os.path.relpath(full_p, r'%~dp0')
-                zf.write(full_p, rel_p)
-"
+python "%~dp0installer\pack_payload.py"
+if %errorlevel% neq 0 (
+    echo [ERROR] Payload packing failed!
+    pause
+    exit /b %errorlevel%
+)
 
 echo.
 echo [3/4] Compiling Custom Modern Dark Installer (WPF)...
