@@ -1,0 +1,29 @@
+# Exclude All Source Code & Build Projects (Closed Source Distribution)
+src/
+*.csproj
+*.sln
+*.cs
+*.xaml
+bin/
+obj/
+.vs/
+.vscode/
+
+# Exclude Local User Data & Database
+data/
+*.sqlite
+*.db
+exports/
+cache/
+temp/
+*.log
+
+# Exclude Heavy Model Weights (Downloaded automatically or via app)
+models/*.gguf
+models/*.bin
+*.gguf
+
+# Exclude intermediate installer build artifacts & debug symbols
+installer/payload.zip
+installer/dist/
+*.pdb
