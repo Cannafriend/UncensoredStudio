@@ -12,10 +12,11 @@ namespace UncensoredStudio.Services
     public class BackendProcessService
     {
         private Process? _backendProcess;
-        private readonly string _defaultBackendPath = @"I:\UncensoredAI\backend\koboldcpp.exe";
-        private readonly string _tempDirectory = @"I:\UncensoredAI\temp";
-        private readonly string _cacheDirectory = @"I:\UncensoredAI\cache";
-        private readonly string _logFilePath = @"I:\UncensoredAI\backend\koboldcpp.log";
+        private readonly string _defaultBackendPath;
+        private readonly string _tempDirectory;
+        private readonly string _cacheDirectory;
+        private readonly string _logFilePath;
+        private readonly string _defaultModelsDir;
 
         public bool IsRunning => _backendProcess != null && !_backendProcess.HasExited;
         public int? ProcessId => IsRunning ? _backendProcess?.Id : null;
@@ -25,6 +26,22 @@ namespace UncensoredStudio.Services
 
         public BackendProcessService()
         {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string localBackend = Path.Combine(baseDir, "backend", "koboldcpp.exe");
+            _defaultBackendPath = File.Exists(localBackend) ? localBackend : @"I:\UncensoredAI\backend\koboldcpp.exe";
+
+            string localTemp = Path.Combine(baseDir, "temp");
+            _tempDirectory = Directory.Exists(localTemp) ? localTemp : @"I:\UncensoredAI\temp";
+
+            string localCache = Path.Combine(baseDir, "cache");
+            _cacheDirectory = Directory.Exists(localCache) ? localCache : @"I:\UncensoredAI\cache";
+
+            string localBackendDir = Path.Combine(baseDir, "backend");
+            _logFilePath = Directory.Exists(localBackendDir) ? Path.Combine(localBackendDir, "koboldcpp.log") : @"I:\UncensoredAI\backend\koboldcpp.log";
+
+            string localModels = Path.Combine(baseDir, "models");
+            _defaultModelsDir = Directory.Exists(localModels) ? localModels : @"I:\UncensoredAI\models";
+
             EnsureDriveDirectories();
         }
 
@@ -66,18 +83,28 @@ namespace UncensoredStudio.Services
 
         public List<string> GetAvailableModels(string? customModelsDir = null)
         {
-            string dir = !string.IsNullOrEmpty(customModelsDir) && Directory.Exists(customModelsDir)
-                ? customModelsDir
-                : @"I:\UncensoredAI\models";
-
-            if (!Directory.Exists(dir))
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (!string.IsNullOrEmpty(customModelsDir) && Directory.Exists(customModelsDir))
             {
-                Directory.CreateDirectory(dir);
-                return new List<string>();
+                foreach (var f in Directory.GetFiles(customModelsDir, "*.gguf", SearchOption.AllDirectories))
+                    results.Add(f);
             }
-
-            var files = Directory.GetFiles(dir, "*.gguf", SearchOption.AllDirectories);
-            return files.ToList();
+            if (Directory.Exists(_defaultModelsDir))
+            {
+                foreach (var f in Directory.GetFiles(_defaultModelsDir, "*.gguf", SearchOption.AllDirectories))
+                    results.Add(f);
+            }
+            if (Directory.Exists(@"I:\UAI\UncensoredStudio\models"))
+            {
+                foreach (var f in Directory.GetFiles(@"I:\UAI\UncensoredStudio\models", "*.gguf", SearchOption.AllDirectories))
+                    results.Add(f);
+            }
+            if (Directory.Exists(@"I:\UncensoredAI\models"))
+            {
+                foreach (var f in Directory.GetFiles(@"I:\UncensoredAI\models", "*.gguf", SearchOption.AllDirectories))
+                    results.Add(f);
+            }
+            return results.ToList();
         }
 
         public async Task<bool> EnsureDependenciesAsync(IProgress<double>? progress = null)

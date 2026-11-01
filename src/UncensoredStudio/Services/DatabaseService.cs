@@ -17,7 +17,9 @@ namespace UncensoredStudio.Services
         {
             if (string.IsNullOrWhiteSpace(customDbPath))
             {
-                string dataDir = @"I:\UncensoredAI\data";
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string localData = Path.Combine(baseDir, "data");
+                string dataDir = Directory.Exists(localData) ? localData : @"I:\UncensoredAI\data";
                 if (!Directory.Exists(dataDir))
                 {
                     Directory.CreateDirectory(dataDir);
