@@ -11,7 +11,7 @@
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.2",
           "Microsoft.Data.Sqlite": "10.0.11",
-          "System.Management": "9.0.2"
+          "System.Management": "9.0.0"
         },
         "runtime": {
           "UncensoredStudio.dll": {}
@@ -84,15 +84,15 @@
           }
         }
       },
-      "System.CodeDom/9.0.2": {},
-      "System.Management/9.0.2": {
+      "System.CodeDom/9.0.0": {},
+      "System.Management/9.0.0": {
         "dependencies": {
-          "System.CodeDom": "9.0.2"
+          "System.CodeDom": "9.0.0"
         },
         "runtime": {
           "runtimes/win/lib/net9.0/System.Management.dll": {
-            "assemblyVersion": "9.0.0.2",
-            "fileVersion": "9.0.225.6610"
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.24.52809"
           }
         }
       },
@@ -154,19 +154,19 @@
       "path": "sqlitepclraw.provider.e_sqlite3/2.1.12",
       "hashPath": "sqlitepclraw.provider.e_sqlite3.2.1.12.nupkg.sha512"
     },
-    "System.CodeDom/9.0.2": {
+    "System.CodeDom/9.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-VnlzS7afE8LaXXwKdHOe2D6FcDekqThzU1E67CONV7gp71q3zposqcSeXH+PxARMXC5j31efwXrxP8VGvD70Ug==",
-      "path": "system.codedom/9.0.2",
-      "hashPath": "system.codedom.9.0.2.nupkg.sha512"
+      "sha512": "sha512-oTE5IfuMoET8yaZP/vdvy9xO47guAv/rOhe4DODuFBN3ySprcQOlXqO3j+e/H/YpKKR5sglrxRaZ2HYOhNJrqA==",
+      "path": "system.codedom/9.0.0",
+      "hashPath": "system.codedom.9.0.0.nupkg.sha512"
     },
-    "System.Management/9.0.2": {
+    "System.Management/9.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-U6SXFe1kfJySAvcPPdbdb+fycaY+3c/KV0PwTjurvrALMnlSm37s5z8zcoI7qbkV2kYhxiLfsZRGiF0XeSsqSQ==",
-      "path": "system.management/9.0.2",
-      "hashPath": "system.management.9.0.2.nupkg.sha512"
+      "sha512": "sha512-bVh4xAMI5grY5GZoklKcMBLirhC8Lqzp63Ft3zXJacwGAlLyFdF4k0qz4pnKIlO6HyL2Z4zqmHm9UkzEo6FFsA==",
+      "path": "system.management/9.0.0",
+      "hashPath": "system.management.9.0.0.nupkg.sha512"
     },
     "System.Memory/4.5.3": {
       "type": "package",

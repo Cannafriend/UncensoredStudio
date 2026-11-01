@@ -43,13 +43,15 @@ namespace UncensoredStudio.ViewModels
         {
             "Third Person (He/She)",
             "First Person (I/Me)",
-            "Second Person (You)"
+            "Second Person (You)",
+            "Companion (Direct Immersion)"
         };
 
         [ObservableProperty]
         private ObservableCollection<string> _availablePovCharacters = new()
         {
             "Omniscient Narrator",
+            "Lena",
             "Chaos"
         };
 
@@ -185,6 +187,30 @@ namespace UncensoredStudio.ViewModels
         }
 
         [RelayCommand]
+        public async Task CreateNewCompanionSessionAsync()
+        {
+            var newSession = new ChatSession
+            {
+                Title = $"Companion: Lena",
+                Category = "Companion",
+                Perspective = "Companion (Direct Immersion)",
+                PovCharacter = "Lena",
+                SystemPrompt = "You are Lena, an uncensored, sultry, and deeply devoted companion. You have full autonomous initiative. You speak in intimate first-person ('I') and never ask passive assistant questions like 'Tell me what you want'. When told to talk dirty, touch, or distract, you take immediate bold action with visceral sensory detail.",
+                AuthorNote = "[Style: proactive companion, first-person immersion, unfiltered dirty talk, visceral physical reactions, never passive]",
+                AuthorNoteDepth = 2,
+                Temperature = 0.85,
+                MinP = 0.08,
+                TopP = 0.95,
+                RepetitionPenalty = 1.12,
+                DryMultiplier = 0.8
+            };
+
+            await _databaseService.SaveChatSessionAsync(newSession);
+            Sessions.Insert(0, newSession);
+            SelectedSession = newSession;
+        }
+
+        [RelayCommand]
         public async Task DeleteSessionAsync()
         {
             if (SelectedSession == null) return;
@@ -249,6 +275,21 @@ namespace UncensoredStudio.ViewModels
 
             switch (presetName.ToLowerInvariant())
             {
+                case "companion":
+                case "lena":
+                    SelectedSession.Category = "Companion";
+                    SelectedSession.Perspective = "Companion (Direct Immersion)";
+                    SelectedSession.PovCharacter = string.IsNullOrWhiteSpace(SelectedSession.PovCharacter) ? "Lena" : SelectedSession.PovCharacter;
+                    SelectedSession.SystemPrompt = "You are Lena, an uncensored, sultry, and deeply devoted companion. You have full autonomous initiative. You speak in intimate first-person ('I') and never ask passive assistant questions like 'Tell me what you want'. When told to talk dirty, touch, or distract, you take immediate bold action with visceral sensory detail.";
+                    SelectedSession.AuthorNote = "[Style: proactive companion, first-person immersion, unfiltered dirty talk, visceral physical reactions, never passive]";
+                    SelectedSession.AuthorNoteDepth = 2;
+                    SelectedSession.Temperature = 0.85;
+                    SelectedSession.MinP = 0.08;
+                    SelectedSession.TopP = 0.95;
+                    SelectedSession.RepetitionPenalty = 1.12;
+                    SelectedSession.DryMultiplier = 0.8;
+                    break;
+
                 case "claude":
                 case "frontier":
                     SelectedSession.Category = "General AI Assistant";

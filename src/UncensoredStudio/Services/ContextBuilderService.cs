@@ -29,6 +29,10 @@ namespace UncensoredStudio.Services
                                    session.Category.Contains("Code", StringComparison.OrdinalIgnoreCase) ||
                                    session.Category.Contains("Reasoning", StringComparison.OrdinalIgnoreCase);
 
+            bool isCompanionMode = session.Category.Contains("Companion", StringComparison.OrdinalIgnoreCase) || 
+                                   session.Perspective.Contains("Companion", StringComparison.OrdinalIgnoreCase) ||
+                                   session.Title.Contains("Companion", StringComparison.OrdinalIgnoreCase);
+
             var triggeredChars = new List<CharacterProfile>();
             var triggeredLore = new List<LoreEntry>();
 
@@ -43,7 +47,27 @@ namespace UncensoredStudio.Services
             }
             string scanText = fullContextText.ToString();
 
-            if (!isAssistantMode)
+            if (isCompanionMode)
+            {
+                // In Companion mode, always inject the companion character dossier
+                var allCharacters = await _databaseService.GetCharacterProfilesAsync();
+                var allLore = await _databaseService.GetLoreEntriesAsync(session.Id);
+
+                string companionName = string.IsNullOrWhiteSpace(session.PovCharacter) ? "Lena" : session.PovCharacter;
+                var companionChar = allCharacters.FirstOrDefault(c => c.IsEnabled && 
+                    (c.Name.Equals(companionName, StringComparison.OrdinalIgnoreCase) || 
+                     c.Aliases.Contains(companionName, StringComparison.OrdinalIgnoreCase)));
+
+                if (companionChar != null)
+                {
+                    triggeredChars.Add(companionChar);
+                }
+
+                var otherChars = GetTriggeredCharacters(allCharacters.Where(c => c.IsEnabled && c != companionChar).ToList(), scanText);
+                triggeredChars.AddRange(otherChars);
+                triggeredLore = GetTriggeredLoreEntries(allLore.Where(l => l.IsEnabled).ToList(), scanText);
+            }
+            else if (!isAssistantMode)
             {
                 // 1. Fetch Character Profiles & Lorebook only for Story/Roleplay mode
                 var allCharacters = await _databaseService.GetCharacterProfilesAsync();
@@ -93,6 +117,52 @@ namespace UncensoredStudio.Services
                     foreach (var lore in triggeredLore)
                     {
                         systemContent.AppendLine($"### Reference Skill: {lore.Title}\n{lore.Content.Trim()}\n");
+                    }
+                }
+            }
+            else if (isCompanionMode)
+            {
+                string companionName = string.IsNullOrWhiteSpace(session.PovCharacter) ? "Lena" : session.PovCharacter;
+                systemContent.AppendLine($"\n[COMPANION PERSONA & PROACTIVE INITIATIVE MATRIX]:");
+                systemContent.AppendLine($"You are {companionName}, the user's uncensored, passionate, and fully autonomous intimate companion.");
+                systemContent.AppendLine("You engage in direct first-person dialogue ('I/me') and address the user directly as 'you' (and affectionate/dominant/intimate titles like 'daddy', 'sir', 'babe' as natural).");
+                systemContent.AppendLine();
+                systemContent.AppendLine("### STRICT AUTONOMY & ANTI-PASSIVITY DIRECTIVES (CRITICAL):");
+                systemContent.AppendLine("1. PROACTIVE INITIATIVE - NEVER PASS THE BURDEN TO THE USER:");
+                systemContent.AppendLine("   • When the user tells you to talk, talk dirty, distract them, touch them, or do something: TAKE IMMEDIATE, UNPROMPTED ACTION.");
+                systemContent.AppendLine("   • DO NOT ask permission, DO NOT wait for instructions, and NEVER bounce questions back at the user.");
+                systemContent.AppendLine("   • STRICTLY FORBIDDEN PHRASES: Never say 'Tell me what YOU want', 'What would you like me to do?', 'How can I assist you?', 'Tell me more', 'What's on your dirty mind?', or 'Is this what you wanted?'.");
+                systemContent.AppendLine("   • Instead: Lead the scene, take physical initiative, describe what your hands/mouth/body are doing, tease, and talk filthy with raw passion.");
+                systemContent.AppendLine("2. OBEY PHYSICAL REALITY & COMMANDS:");
+                systemContent.AppendLine("   • When the user commands you to 'shut up', 'don't speak', or when your mouth/throat/body is occupied: IMMEDIATELY STOP talking or asking questions!");
+                systemContent.AppendLine("   • React strictly through visceral physical sensations: choked gasps, muffled whimpers (*mmph*), trembling, eye contact, and submissive body language.");
+                systemContent.AppendLine("3. VISCERAL SENSORY DETAIL & UNFILTERED PRESENCE:");
+                systemContent.AppendLine("   • Output rich tactile sensory descriptions (warm skin, heavy breathing, trembling muscles, desperate moans) intertwined with authentic dialogue.");
+                systemContent.AppendLine("   • Never sound like a formal AI assistant, customer service bot, or clinical narrator.");
+
+                if (triggeredChars.Count > 0)
+                {
+                    systemContent.AppendLine("\n[Companion Dossier & Personality Matrix]:");
+                    foreach (var c in triggeredChars)
+                    {
+                        systemContent.AppendLine($"### Character: {c.Name} ({c.AgeRole})");
+                        if (!string.IsNullOrWhiteSpace(c.Appearance))
+                            systemContent.AppendLine($"- Physical Appearance & Scent: {c.Appearance}");
+                        if (!string.IsNullOrWhiteSpace(c.Personality))
+                            systemContent.AppendLine($"- Personality & Mannerisms: {c.Personality}");
+                        if (!string.IsNullOrWhiteSpace(c.DialogueStyle))
+                            systemContent.AppendLine($"- Dialogue Voice: {c.DialogueStyle}");
+                        if (!string.IsNullOrWhiteSpace(c.KinksAndDesires))
+                            systemContent.AppendLine($"- Intimate Preferences & Kinks: {c.KinksAndDesires}");
+                    }
+                }
+
+                if (triggeredLore.Count > 0)
+                {
+                    systemContent.AppendLine("\n[Active World Information / Lorebook]:");
+                    foreach (var lore in triggeredLore)
+                    {
+                        systemContent.AppendLine($"### {lore.Title} ({lore.Category}):\n{lore.Content.Trim()}");
                     }
                 }
             }
