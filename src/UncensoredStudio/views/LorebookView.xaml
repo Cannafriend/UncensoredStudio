@@ -1,0 +1,146 @@
+<UserControl x:Class="UncensoredStudio.Views.LorebookView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UncensoredStudio.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:LorebookViewModel}"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <!-- Lore entries list & search -->
+            <ColumnDefinition Width="*"/>
+            <!-- Lore entry detail editor -->
+            <ColumnDefinition Width="340"/>
+            <!-- Live trigger sandbox tester -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: Lore Entries List & Category Filters -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,1,0" Padding="12">
+            <DockPanel>
+                <!-- Header & Add Button -->
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <TextBlock Text="LOREBOOK &amp; WORLD BIBLE" FontWeight="Bold" FontSize="11" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                    <Button Content="+ Add Entry" Style="{StaticResource PrimaryButton}" Command="{Binding CreateNewEntryCommand}" HorizontalAlignment="Right" Padding="8,4" FontSize="11"/>
+                </DockPanel>
+
+                <!-- Search & Category Filters -->
+                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                             Margin="0,0,0,6" ToolTip="Search entries or trigger keys..." FontSize="12"/>
+                    <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategoryFilter}"
+                              Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" Padding="6,4" FontSize="11"/>
+                </StackPanel>
+
+                <!-- Entries List -->
+                <ListBox ItemsSource="{Binding FilteredEntries}" SelectedItem="{Binding SelectedEntry}"
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Category}" Foreground="{StaticResource AccentPurpleBrush}" FontSize="10" DockPanel.Dock="Bottom" Margin="0,2,0,0"/>
+                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Center: Lore Entry Editor -->
+        <Grid Grid.Column="1" Margin="20,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Title & Actions -->
+                <RowDefinition Height="Auto"/>
+                <!-- Key triggers & Category bar -->
+                <RowDefinition Height="*"/>
+                <!-- Content Description Area -->
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                <TextBox Text="{Binding SelectedEntry.Title, UpdateSourceTrigger=PropertyChanged}" 
+                         FontWeight="Bold" FontSize="18" Background="Transparent" BorderThickness="0" 
+                         Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Width="350"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="💾 Save Entry" Style="{StaticResource PrimaryButton}" Command="{Binding SaveSelectedEntryCommand}" Margin="0,0,8,0"/>
+                    <Button Content="🗑 Delete" Style="{StaticResource DangerButton}" Command="{Binding DeleteSelectedEntryCommand}"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Metadata Configuration -->
+            <Border Grid.Row="1" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="140"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="ACTIVATION KEYS (COMMA-SEPARATED)" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                    <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding SelectedEntry.Keys, UpdateSourceTrigger=PropertyChanged}" 
+                             Margin="0,0,12,0" ToolTip="e.g. Julian, Sterling, billionaire, art collector"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedEntry.Category, UpdateSourceTrigger=PropertyChanged}" ToolTip="Character, Location, Kink, Lore"/>
+                </Grid>
+            </Border>
+
+            <!-- Content Area -->
+            <Border Grid.Row="2" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="MEMORY CONTEXT INJECTION CONTENT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+                    <TextBox Text="{Binding SelectedEntry.Content, UpdateSourceTrigger=PropertyChanged}" 
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextPrimaryBrush}"
+                             FontSize="14" FontFamily="Segoe UI, sans-serif"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Right: Live Trigger Sandbox Tester -->
+        <Border Grid.Column="2" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1,0,0,0" Padding="14">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="LIVE TRIGGER SANDBOX" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentCyanBrush}" Margin="0,0,0,8"/>
+
+                <TextBlock DockPanel.Dock="Top" Text="Type or paste sample story text below to test which lore entries trigger and enter AI memory:" 
+                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                <!-- Test Input -->
+                <TextBox DockPanel.Dock="Top" Text="{Binding TestInputText, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="120" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,12"
+                         ToolTip="e.g. Julian looked around the room..."/>
+
+                <!-- Triggered Preview -->
+                <TextBlock DockPanel.Dock="Top" Text="TRIGGERED LORE ENTRIES:" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding TestTriggeredEntries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource AccentCyanBrush}" BorderThickness="1"
+                                        CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" Foreground="{StaticResource AccentCyanBrush}" FontSize="12"/>
+                                        <TextBlock Text="{Binding Keys, StringFormat='{}Triggered by: {0}'}" FontSize="10" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,4"/>
+                                        <TextBlock Text="{Binding Content}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

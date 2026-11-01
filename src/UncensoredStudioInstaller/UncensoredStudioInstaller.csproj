@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>..\UncensoredStudio\Assets\app.ico</ApplicationIcon>
+    <AssemblyName>UncensoredStudio-Installer</AssemblyName>
+    <RootNamespace>UncensoredStudioInstaller</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="..\UncensoredStudio\Assets\Logo.png" Link="Assets\Logo.png" />
+    <Resource Include="..\UncensoredStudio\Assets\app.ico" Link="Assets\app.ico" />
+    <EmbeddedResource Include="..\..\installer\payload.zip" Link="payload.zip" />
+  </ItemGroup>
+
+</Project>

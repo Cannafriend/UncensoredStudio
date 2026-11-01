@@ -1,0 +1,85 @@
+<UserControl x:Class="UncensoredStudio.Views.StartupModelPickerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UncensoredStudio.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+             Background="#E6090A10">
+    <Grid>
+        <!-- Modal Card -->
+        <Border Width="680" MaxHeight="620" Background="{StaticResource CardBgBrush}" 
+                BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" 
+                CornerRadius="12" Padding="28" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="30" ShadowDepth="6" Color="#000000" Opacity="0.7"/>
+            </Border.Effect>
+
+            <StackPanel>
+                <!-- Header -->
+                <DockPanel Margin="0,0,0,16">
+                    <Button DockPanel.Dock="Right" Content="✕" Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding ConfirmModelAndEnterStudioCommand}" 
+                            Padding="8,4" FontSize="12" VerticalAlignment="Top" ToolTip="Close"/>
+
+                    <Border CornerRadius="10" Width="48" Height="48" Margin="0,0,14,0" Background="#161928" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                        <Image Source="pack://application:,,,/UncensoredStudio;component/Assets/Logo.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="4"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Select Active AI Writing Model" FontWeight="Bold" FontSize="18" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Choose which uncensored model you would like to load for this session" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- Models List Cards -->
+                <TextBlock Text="INSTALLED MODELS FOUND ON DISK:" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,8"/>
+
+                <ListBox ItemsSource="{Binding HeaderModelsList}" SelectedItem="{Binding SelectedHeaderModel}"
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,16">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="8" Padding="14,12" Margin="0,0,0,8" Cursor="Hand">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <DockPanel Margin="0,0,0,4">
+                                            <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <Border Background="#252940" CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SizeDisplay}" FontSize="10" Foreground="{StaticResource AccentCyanBrush}"/>
+                                            </Border>
+                                            <Border Background="#3B1219" CornerRadius="4" Padding="6,2" Margin="6,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Tag}" FontSize="10" Foreground="{StaticResource AccentRoseBrush}" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <RadioButton Grid.Column="1" IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" 
+                                                 VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Footer & Action -->
+                <DockPanel Margin="0,0,0,16">
+                    <CheckBox Content="Always show model selector on startup" IsChecked="{Binding AlwaysPromptOnStartup, Mode=TwoWay}"
+                              Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                    <Button Content="+ Install Another Model" Style="{StaticResource SecondaryButton}" Command="{Binding OpenModelHubFromPickerCommand}" 
+                            HorizontalAlignment="Right" FontSize="11" Padding="8,4"/>
+                </DockPanel>
+
+                <!-- Enter Button -->
+                <Button Content="✨ Load Model &amp; Enter Studio 🚀" Style="{StaticResource SpicyButton}" 
+                        Command="{Binding ConfirmModelAndEnterStudioCommand}" Height="44" FontSize="15"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

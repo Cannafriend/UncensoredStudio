@@ -1,9 +1,4 @@
-# Exclude All Source Code & Build Projects (Closed Source Distribution)
-src/
-*.csproj
-*.sln
-*.cs
-*.xaml
+# Build Output
 bin/
 obj/
 .vs/
@@ -21,7 +16,9 @@ temp/
 # Exclude Heavy Model Weights (Downloaded automatically or via app)
 models/*.gguf
 models/*.bin
+models/*.safetensors
 *.gguf
+*.safetensors
 
 # Exclude intermediate installer build artifacts & debug symbols
 installer/payload.zip

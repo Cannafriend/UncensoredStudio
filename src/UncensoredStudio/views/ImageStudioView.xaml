@@ -1,0 +1,201 @@
+<UserControl x:Class="UncensoredStudio.Views.ImageStudioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UncensoredStudio.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ImageStudioViewModel}"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <!-- Left: Prompt & Settings Builder -->
+            <ColumnDefinition Width="*"/>
+            <!-- Center: Canvas Stage & Actions -->
+            <ColumnDefinition Width="300"/>
+            <!-- Right: Reference Image / Vision Remake & Gallery -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: Prompt & Sampler Settings Builder -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,12,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="🎨 UNCENSORED IMAGE STUDIO" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentRoseBrush}" Margin="0,0,0,8"/>
+
+                    <!-- Prompt Box -->
+                    <DockPanel Margin="0,0,0,4">
+                        <TextBlock Text="Visual Prompt:" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Button Content="✨ AI Enhance" Style="{StaticResource SpicyButton}" Command="{Binding EnhancePromptCommand}" FontSize="10" Padding="6,2" HorizontalAlignment="Right" ToolTip="Let the LLM expand your prompt with lighting and aesthetic quality tokens"/>
+                    </DockPanel>
+                    <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}" 
+                             Height="110" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                             FontSize="12" Margin="0,0,0,10"/>
+
+                    <!-- Negative Prompt Box -->
+                    <TextBlock Text="Negative Prompt (Quality Filters):" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding NegativePrompt, UpdateSourceTrigger=PropertyChanged}" 
+                             Height="65" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" 
+                             FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,10"/>
+
+                    <!-- Art Style Preset -->
+                    <TextBlock Text="Art Style &amp; Atmosphere:" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox ItemsSource="{Binding AvailableStyles}" SelectedItem="{Binding SelectedStyle}" 
+                              Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" 
+                              Padding="6,4" FontSize="11" Margin="0,0,0,10"/>
+
+                    <!-- Resolution Preset -->
+                    <TextBlock Text="Resolution &amp; Aspect Ratio:" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <ComboBox ItemsSource="{Binding AvailableResolutions}" SelectedItem="{Binding SelectedResolution}" 
+                              Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" 
+                              Padding="6,4" FontSize="11" Margin="0,0,12,0"/>
+
+                    <!-- Sampler Settings -->
+                    <TextBlock Text="⚙️ DIFFUSION SAMPLER PARAMETERS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,8"/>
+
+                    <DockPanel Margin="0,0,0,6">
+                        <TextBlock Text="Steps:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        <TextBox Text="{Binding Steps, UpdateSourceTrigger=PropertyChanged}" Width="55" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,6">
+                        <TextBlock Text="CFG Scale (Prompt Adherence):" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"/>
+                        <TextBox Text="{Binding CfgScale, UpdateSourceTrigger=PropertyChanged}" Width="55" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,6">
+                        <TextBlock Text="Sampler Algorithm:" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                        <ComboBox ItemsSource="{Binding AvailableSamplers}" SelectedItem="{Binding Sampler}" Width="130" HorizontalAlignment="Right" FontSize="11" Padding="4,2"/>
+                    </DockPanel>
+
+                    <DockPanel Margin="0,0,0,12">
+                        <CheckBox Content="Random Seed" IsChecked="{Binding IsRandomSeed}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding Seed, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsRandomSeed, Converter={StaticResource BoolToVis}}" Width="80" HorizontalAlignment="Right" FontSize="11"/>
+                    </DockPanel>
+
+                    <!-- Large Generate Button -->
+                    <Button Content="🎨 GENERATE ARTWORK" Style="{StaticResource SpicyButton}" Command="{Binding GenerateImageCommand}" FontSize="13" FontWeight="Bold" Padding="14,10" Margin="0,4,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Center: Canvas Stage & Main Preview -->
+        <Border Grid.Column="1" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,12,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Header & Status -->
+                    <RowDefinition Height="*"/>
+                    <!-- Artwork Canvas -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Bottom Action Toolbar -->
+                </Grid.RowDefinitions>
+
+                <!-- Stage Header -->
+                <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="#10B981"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding BackendOnline}" Value="False">
+                                            <Setter Property="Fill" Value="#F59E0B"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="{Binding StatusText}" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Content="⚡ Engine Check" Style="{StaticResource SecondaryButton}" Command="{Binding CheckEngineStatusCommand}" HorizontalAlignment="Right" FontSize="10" Padding="8,3"/>
+                </DockPanel>
+
+                <!-- Main Canvas Preview -->
+                <Border Grid.Row="1" Background="#0E101A" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                    <Grid>
+                        <!-- Rendered Image -->
+                        <Image Source="{Binding ActiveImage.FilePath}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                        <!-- Generating Spinner Overlay -->
+                        <Border Background="#CC0A0D18" Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVis}}" CornerRadius="8">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressBar IsIndeterminate="True" Width="180" Height="6" Foreground="{StaticResource AccentRoseBrush}" Margin="0,0,0,12"/>
+                                <TextBlock Text="{Binding StatusText}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Uncensored diffusion rendering on GPU..." FontSize="11" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Bottom Action Toolbar -->
+                <DockPanel Grid.Row="2" Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="📋 Copy Image" Style="{StaticResource SecondaryButton}" Command="{Binding CopyImageToClipboardCommand}" FontSize="11" Padding="10,4" Margin="0,0,8,0"/>
+                        <Button Content="📁 Open Gallery Folder" Style="{StaticResource SecondaryButton}" Command="{Binding OpenExportsFolderCommand}" FontSize="11" Padding="10,4"/>
+                    </StackPanel>
+
+                    <Button Content="🗑 Delete" Style="{StaticResource DangerButton}" Command="{Binding DeleteActiveImageCommand}" HorizontalAlignment="Right" FontSize="11" Padding="10,4"/>
+                </DockPanel>
+            </Grid>
+        </Border>
+
+        <!-- Right: Reference Image / Vision Remake & Gallery -->
+        <Border Grid.Column="2" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Vision Remake / Img2Img Header -->
+                    <TextBlock Text="📸 PASTE &amp; REMAKE (VISION / IMG2IMG)" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentPurpleBrush}" Margin="0,0,0,8"/>
+
+                    <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,12">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,8">
+                                <Button Content="📋 Paste Image (Ctrl+V)" Style="{StaticResource PrimaryButton}" Command="{Binding PasteImageFromClipboardCommand}" FontSize="11" Padding="8,4"/>
+                                <Button Content="✕ Clear" Style="{StaticResource SecondaryButton}" Command="{Binding ClearReferenceImageCommand}" HorizontalAlignment="Right" FontSize="10" Padding="6,3" Visibility="{Binding HasReferenceImage, Converter={StaticResource BoolToVis}}"/>
+                            </DockPanel>
+
+                            <!-- Reference Image Preview -->
+                            <Border Height="140" Background="#0A0B14" BorderBrush="{StaticResource AccentPurpleBrush}" BorderThickness="1" CornerRadius="6" Margin="0,0,0,8" Visibility="{Binding HasReferenceImage, Converter={StaticResource BoolToVis}}">
+                                <Image Source="{Binding ReferenceImagePath}" Stretch="Uniform" Margin="4"/>
+                            </Border>
+
+                            <!-- Vision Analysis Action -->
+                            <Button Content="🔍 Analyze Image with Vision AI" Style="{StaticResource SpicyButton}" Command="{Binding AnalyzeAndRemakeCommand}" FontSize="11" Padding="8,5" Margin="0,0,0,8" Visibility="{Binding HasReferenceImage, Converter={StaticResource BoolToVis}}" ToolTip="Vision AI analyzes the pasted image and constructs a detailed prompt to recreate or remix it"/>
+
+                            <!-- Denoising Strength Slider -->
+                            <StackPanel Visibility="{Binding HasReferenceImage, Converter={StaticResource BoolToVis}}">
+                                <DockPanel Margin="0,0,0,2">
+                                    <TextBlock Text="Remake Variation (Denoise):" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding DenoisingStrength, StringFormat='{}{0:F2}'}" FontSize="10" Foreground="{StaticResource AccentCyanBrush}" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                                <Slider Minimum="0.1" Maximum="1.0" Value="{Binding DenoisingStrength}" SmallChange="0.05" LargeChange="0.1" TickFrequency="0.1" IsSnapToTickEnabled="False"/>
+                                <TextBlock Text="0.30 = Subtle Polish | 0.70 = New Remake" FontSize="9" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Gallery of Recent Creations -->
+                    <TextBlock Text="🖼️ CREATIONS GALLERY" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentRoseBrush}" Margin="0,0,0,8"/>
+
+                    <ListBox ItemsSource="{Binding GalleryImages}" SelectedItem="{Binding ActiveImage, Mode=TwoWay}"
+                             Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="6" Margin="0,0,0,6">
+                                    <DockPanel>
+                                        <Image Source="{Binding FilePath}" Width="50" Height="50" Stretch="UniformToFill" Margin="0,0,8,0"/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Prompt}" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxHeight="28"/>
+                                            <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:MMM dd, HH:mm}'}" FontSize="9" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

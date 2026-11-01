@@ -1,0 +1,68 @@
+<Application x:Class="UncensoredStudioInstaller.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- Design Palette Matching Uncensored Studio -->
+        <SolidColorBrush x:Key="BgDarkBrush" Color="#090A10"/>
+        <SolidColorBrush x:Key="SidebarBgBrush" Color="#0F111A"/>
+        <SolidColorBrush x:Key="CardBgBrush" Color="#161926"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#2A2E45"/>
+        <SolidColorBrush x:Key="InputBgBrush" Color="#1E2235"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#373D5C"/>
+        
+        <SolidColorBrush x:Key="AccentRoseBrush" Color="#E11D48"/>
+        <SolidColorBrush x:Key="AccentPurpleBrush" Color="#A855F7"/>
+        <SolidColorBrush x:Key="AccentCyanBrush" Color="#06B6D4"/>
+        <SolidColorBrush x:Key="AccentGreenBrush" Color="#10B981"/>
+        
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F8FAFC"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#CBD5E1"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#64748B"/>
+
+        <!-- Spicy Gradient Button -->
+        <LinearGradientBrush x:Key="SpicyGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E11D48" Offset="0"/>
+            <GradientStop Color="#A855F7" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="SpicyButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource SpicyGradientBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CardBgBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+</Application>

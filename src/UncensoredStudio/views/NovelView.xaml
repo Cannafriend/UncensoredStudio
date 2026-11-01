@@ -1,0 +1,293 @@
+<UserControl x:Class="UncensoredStudio.Views.NovelView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UncensoredStudio.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:NovelViewModel}"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <!-- Chapter & Projects sidebar -->
+            <ColumnDefinition Width="*"/>
+            <!-- Center rich manuscript editor -->
+            <ColumnDefinition Width="350"/>
+            <!-- AI Prose Assistant & Character / Lore inspector -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Sidebar: Projects & Chapters -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,1,0" Padding="12">
+            <DockPanel>
+                <!-- Project Selector & Actions -->
+                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="NOVEL PROJECT" FontWeight="Bold" FontSize="11" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="+ New" Style="{StaticResource SecondaryButton}" Command="{Binding CreateNewProjectCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0"/>
+                            <Button Content="🗑" Style="{StaticResource DangerButton}" Command="{Binding DeleteProjectCommand}" Padding="6,2" FontSize="11"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <ComboBox ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject}" DisplayMemberPath="Title"
+                              Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" Padding="8,6" Margin="0,0,0,8"/>
+
+                    <TextBox Text="{Binding SelectedProject.Genre, UpdateSourceTrigger=PropertyChanged}" 
+                             ToolTip="Novel Genre" Margin="0,0,0,6" FontSize="11" Foreground="{StaticResource AccentPurpleBrush}"/>
+
+                    <!-- Character Drawer Toggle Button -->
+                    <Button Content="🎭 Character Profiles &amp; Kinks" Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding ToggleCharacterDrawerCommand}" Padding="8,6" FontSize="11" Margin="0,0,0,4"/>
+                </StackPanel>
+
+                <!-- Chapters Header -->
+                <DockPanel DockPanel.Dock="Top" Margin="0,8,0,8">
+                    <TextBlock Text="CHAPTERS" FontWeight="Bold" FontSize="11" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                    <Button Content="+ Add Chapter" Style="{StaticResource SecondaryButton}" Command="{Binding AddNewChapterCommand}" HorizontalAlignment="Right" Padding="8,4" FontSize="11"/>
+                </DockPanel>
+
+                <!-- Export Novel Button at bottom -->
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                    <Button Content="📥 Export Full Novel (.md)" Style="{StaticResource SecondaryButton}" Command="{Binding ExportEntireNovelMarkdownCommand}" Margin="0,0,0,6"/>
+                    <Button Content="📄 Export Chapter (.md)" Style="{StaticResource SecondaryButton}" Command="{Binding ExportChapterMarkdownCommand}"/>
+                </StackPanel>
+
+                <!-- Chapters List -->
+                <ListBox ItemsSource="{Binding Chapters}" SelectedItem="{Binding SelectedChapter}"
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding WordCount, StringFormat='{}{0}w'}" Foreground="{StaticResource TextMutedBrush}" 
+                                               FontSize="11" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                </DockPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Center: Chapter Editor OR Character Profile Drawer Overlay -->
+        <Grid Grid.Column="1" Margin="20,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Chapter Title & Metadata Bar -->
+                <RowDefinition Height="Auto"/>
+                <!-- POV & Perspective Selector Bar -->
+                <RowDefinition Height="*"/>
+                <!-- Manuscript Text Area -->
+                <RowDefinition Height="Auto"/>
+                <!-- Editor Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Chapter Header -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                <TextBox Text="{Binding SelectedChapter.Title, UpdateSourceTrigger=PropertyChanged}" 
+                         FontWeight="Bold" FontSize="20" Background="Transparent" BorderThickness="0" 
+                         Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Width="400"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedChapter.WordCount, StringFormat='{}{0:N0} words'}" 
+                               Foreground="{StaticResource TextSecondaryBrush}" FontSize="13" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Button Content="💾 Save Chapter" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCurrentChapterCommand}" Margin="0,0,8,0"/>
+                    <Button Content="🗑" Style="{StaticResource DangerButton}" Command="{Binding DeleteChapterCommand}"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- POV Perspective Switcher Bar -->
+            <Border Grid.Row="1" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,10">
+                <DockPanel>
+                    <TextBlock Text="PERSPECTIVE / POV:" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentRoseBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                    <ComboBox ItemsSource="{Binding AvailablePerspectives}" SelectedItem="{Binding SelectedPerspective}"
+                              Width="180" Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" 
+                              Padding="6,3" FontSize="11" Margin="0,0,12,0"/>
+
+                    <TextBlock Text="POV FOCUS:" FontWeight="Bold" FontSize="11" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBox Text="{Binding PovFocus, UpdateSourceTrigger=PropertyChanged}" 
+                             Width="160" Background="{StaticResource InputBgBrush}" Foreground="{StaticResource TextPrimaryBrush}" 
+                             Padding="6,3" FontSize="11" ToolTip="e.g. Chaos, Elena, Omniscient Narrator"/>
+                </DockPanel>
+            </Border>
+
+            <!-- Manuscript Editor -->
+            <Border Grid.Row="2" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+                <TextBox Text="{Binding ActiveChapterContent, UpdateSourceTrigger=PropertyChanged}" 
+                         AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" 
+                         VerticalScrollBarVisibility="Auto" Background="Transparent" BorderThickness="0"
+                         Foreground="{StaticResource TextPrimaryBrush}" FontSize="15"
+                         FontFamily="Georgia, Segoe UI, sans-serif" CaretBrush="{StaticResource AccentPurpleBrush}"/>
+            </Border>
+
+            <!-- Status Footer -->
+            <DockPanel Grid.Row="3" Margin="0,8,0,0">
+                <TextBlock Text="{Binding GenerationStatus}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <!-- Character Profiles Drawer Overlay (Inside Editor View) -->
+            <Grid Grid.RowSpan="4" Background="#F0090A10" Visibility="{Binding IsCharacterDrawerOpen, Converter={StaticResource BoolToVis}}">
+                <Border Width="650" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <DockPanel>
+                        <!-- Header -->
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+                            <TextBlock Text="🎭 CHARACTER PROFILES (AUTO-DETECTED IN PROSE)" FontWeight="Bold" FontSize="14" Foreground="{StaticResource AccentRoseBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="+ Add Character" Style="{StaticResource PrimaryButton}" Command="{Binding CreateNewCharacterCommand}" Margin="0,0,8,0" Padding="8,4" FontSize="11"/>
+                                <Button Content="✕ Close" Style="{StaticResource SecondaryButton}" Command="{Binding ToggleCharacterDrawerCommand}" Padding="8,4" FontSize="11"/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <!-- Left Characters List -->
+                        <ListBox DockPanel.Dock="Left" Width="180" ItemsSource="{Binding Characters}" SelectedItem="{Binding SelectedCharacter}"
+                                 Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" Margin="0,0,14,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Padding="4"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Character Detail Editor -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBox Text="{Binding SelectedCharacter.Name, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" FontSize="16" Width="240" HorizontalAlignment="Left"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="💾 Save" Style="{StaticResource PrimaryButton}" Command="{Binding SaveSelectedCharacterCommand}" Margin="0,0,6,0" FontSize="11" Padding="8,4"/>
+                                        <Button Content="🗑" Style="{StaticResource DangerButton}" Command="{Binding DeleteSelectedCharacterCommand}" FontSize="11" Padding="6,2"/>
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <TextBlock Text="ALIASES / TRIGGER WORDS (COMMA-SEPARATED)" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.Aliases, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" FontSize="11" ToolTip="e.g. Chaos, Sir Chaos, Lord of Ruin"/>
+
+                                <TextBlock Text="AGE &amp; ROLE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.AgeRole, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" FontSize="11"/>
+
+                                <TextBlock Text="PHYSICAL APPEARANCE &amp; SCENT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.Appearance, UpdateSourceTrigger=PropertyChanged}" Height="55" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8" FontSize="11"/>
+
+                                <TextBlock Text="PERSONALITY &amp; MANNERISMS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.Personality, UpdateSourceTrigger=PropertyChanged}" Height="55" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8" FontSize="11"/>
+
+                                <TextBlock Text="KINKS, INTIMATE DESIRES &amp; DYNAMICS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentRoseBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.KinksAndDesires, UpdateSourceTrigger=PropertyChanged}" Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,8" FontSize="11"/>
+
+                                <TextBlock Text="DIALOGUE CADENCE &amp; VOICE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding SelectedCharacter.DialogueStyle, UpdateSourceTrigger=PropertyChanged}" Height="40" TextWrapping="Wrap" AcceptsReturn="True" FontSize="11"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Right Panel: AI Prose Co-Author & Live Character / Lore Inspector -->
+        <Border Grid.Column="2" Background="{StaticResource SidebarBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1,0,0,0" Padding="14">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="AI PROSE CO-AUTHOR" FontWeight="Bold" FontSize="12" Foreground="{StaticResource AccentPurpleBrush}" Margin="0,0,0,12"/>
+
+                <!-- Quick AI Story Actions -->
+                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <TextBlock Text="QUICK ACTIONS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,6"/>
+
+                    <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <Button Content="⚡ Continue Story" Style="{StaticResource PrimaryButton}" Command="{Binding ExecuteAiActionCommand}" CommandParameter="continue" Margin="0,0,3,4"/>
+                        <Button Content="🔥 Add Sensory/Heat" Style="{StaticResource SpicyButton}" Command="{Binding ExecuteAiActionCommand}" CommandParameter="sensory" Margin="3,0,0,4"/>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <Button Content="💬 Sharpen Dialogue" Style="{StaticResource SecondaryButton}" Command="{Binding ExecuteAiActionCommand}" CommandParameter="dialogue" Margin="0,0,3,4"/>
+                        <Button Content="✍️ Deepen Setting" Style="{StaticResource SecondaryButton}" Command="{Binding ExecuteAiActionCommand}" CommandParameter="atmosphere" Margin="3,0,0,4"/>
+                    </UniformGrid>
+
+                    <Button Content="💡 Brainstorm Next Plot Beats" Style="{StaticResource SecondaryButton}" Command="{Binding ExecuteAiActionCommand}" CommandParameter="brainstorm" Margin="0,0,0,6"/>
+
+                    <!-- Custom Prompt Box -->
+                    <TextBox Text="{Binding CustomInstructionText, UpdateSourceTrigger=PropertyChanged}" 
+                             Height="45" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,4"
+                             ToolTip="e.g. Write Chaos stepping closer, pulling her chin up..."/>
+                    <Button Content="Execute Custom Instruction" Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding ExecuteAiActionCommand}" CommandParameter="custom" FontSize="11"/>
+                </StackPanel>
+
+                <!-- Active AI Generating / Typing Indicator Banner -->
+                <Border DockPanel.Dock="Top" Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVis}}"
+                        Background="#161828" BorderBrush="{StaticResource AccentRoseBrush}" BorderThickness="1" 
+                        CornerRadius="8" Padding="10,8" Margin="0,0,0,8">
+                    <DockPanel>
+                        <ProgressBar IsIndeterminate="True" Width="70" Height="4" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="{StaticResource AccentRoseBrush}"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="✍️" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding GenerationStatus}" FontWeight="SemiBold" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Stop Generation Button -->
+                <Button DockPanel.Dock="Top" Content="⏹ Stop Generating" Style="{StaticResource DangerButton}" 
+                        Command="{Binding StopGenerationCommand}" Margin="0,0,0,6"
+                        Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVis}}"/>
+
+                <!-- Triggered Characters & Lore Inspector in Scene -->
+                <GroupBox DockPanel.Dock="Bottom" Header="DETECTED IN CURRENT SCENE" Foreground="{StaticResource AccentRoseBrush}" 
+                          BorderBrush="{StaticResource CardBorderBrush}" Height="140" Margin="0,6,0,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Detected Characters -->
+                            <ItemsControl ItemsSource="{Binding TriggeredCharacters}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource AccentRoseBrush}" BorderThickness="1" CornerRadius="4" Padding="6,4" Margin="0,2">
+                                            <StackPanel>
+                                                <DockPanel>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentRoseBrush}"/>
+                                                    <TextBlock Text=" (Character Profile Active)" FontSize="9" Foreground="{StaticResource AccentGreenBrush}" HorizontalAlignment="Right"/>
+                                                </DockPanel>
+                                                <TextBlock Text="{Binding Appearance}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="28" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Detected Lore -->
+                            <ItemsControl ItemsSource="{Binding TriggeredLoreEntries}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource CardBgBrush}" CornerRadius="4" Padding="6,4" Margin="0,2">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="11" Foreground="{StaticResource AccentPurpleBrush}"/>
+                                                <TextBlock Text="{Binding Content}" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="28" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </GroupBox>
+
+                <!-- AI Output Preview Box -->
+                <GroupBox Header="AI DRAFT PREVIEW" Foreground="{StaticResource TextSecondaryBrush}" BorderBrush="{StaticResource CardBorderBrush}">
+                    <DockPanel>
+                        <!-- Action buttons for draft -->
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                            <Button Content="⬇️ Insert at End" Style="{StaticResource PrimaryButton}" Command="{Binding InsertSuggestionAtEndCommand}" Margin="0,0,6,0" FontSize="11" Padding="8,4"/>
+                            <Button Content="🔄 Replace" Style="{StaticResource SecondaryButton}" Command="{Binding ReplaceSelectionWithSuggestionCommand}" FontSize="11" Padding="8,4"/>
+                        </StackPanel>
+
+                        <TextBox Text="{Binding AiSuggestionText}" IsReadOnly="True" TextWrapping="Wrap" 
+                                 VerticalScrollBarVisibility="Auto" Background="{StaticResource InputBgBrush}"
+                                 Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" BorderThickness="0"/>
+                    </DockPanel>
+                </GroupBox>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>
